@@ -376,7 +376,6 @@ class Galaxy {
   _buildStarfield() {
     const positions = new Float32Array(C.STAR_COUNT * 3);
     const colors    = new Float32Array(C.STAR_COUNT * 3);
-    const sizes     = new Float32Array(C.STAR_COUNT);
 
     for (let i = 0; i < C.STAR_COUNT; i++) {
       const r   = 80000 + Math.random() * 120000;
@@ -386,69 +385,67 @@ class Galaxy {
       positions[i*3+1] = r * Math.sin(phi) * Math.sin(th);
       positions[i*3+2] = r * Math.cos(phi);
 
-      const brightness = 0.4 + Math.random() * 0.6;
+      const brightness = 0.5 + Math.random() * 0.5;
       const hue        = Math.random();
-      const col        = new THREE.Color().setHSL(hue, 0.2, brightness);
+      const col        = new THREE.Color().setHSL(hue, 0.15, brightness);
       colors[i*3]   = col.r;
       colors[i*3+1] = col.g;
       colors[i*3+2] = col.b;
-      sizes[i] = 0.8 + Math.random() * 2.5;
     }
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
-    geo.setAttribute('size',     new THREE.BufferAttribute(sizes,     1));
+    geo.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
 
-    const mat = new THREE.ShaderMaterial({
-      uniforms: {
-        warpFactor: { value: 0.0 },
-        playerDir:  { value: new THREE.Vector3(0, 0, -1) },
-      },
-      vertexShader: `
-        attribute float size;
-        attribute vec3 color;
-        varying vec3 vColor;
-        uniform float warpFactor;
-        uniform vec3 playerDir;
-        void main() {
-          vColor = color;
-          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-          // Warp: stretch stars along travel direction
-          if (warpFactor > 0.0) {
-            float proj = dot(normalize(position), playerDir);
-            float stretch = 1.0 + warpFactor * 4.0 * max(0.0, proj);
-            mvPos.z -= stretch * warpFactor * length(position) * 0.0002;
-          }
-          gl_Position = projectionMatrix * mvPos;
-          gl_PointSize = size * (300.0 / -mvPos.z) * (1.0 + warpFactor * 1.5);
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vColor;
-        void main() {
-          float d = length(gl_PointCoord - vec2(0.5));
-          if (d > 0.5) discard;
-          float alpha = 1.0 - d * 2.0;
-          gl_FragColor = vec4(vColor, alpha);
-        }
-      `,
-      transparent:   true,
-      vertexColors:  true,
-      depthWrite:    false,
+    const mat = new THREE.PointsMaterial({
+      size:            1.8,
+      vertexColors:    true,
+      transparent:     true,
+      depthWrite:      false,
+      sizeAttenuation: false,
     });
 
     this.starfield = new THREE.Points(geo, mat);
     this.scene.add(this.starfield);
-    this.starPositionsOrig = positions.slice();
+
+    // Warp streak overlay: line segments radiating outward during timewarp
+    this._buildWarpLines(positions);
+  }
+
+  _buildWarpLines(starPositions) {
+    const streakCount = 600;
+    const linePts     = new Float32Array(streakCount * 2 * 3);
+    for (let i = 0; i < streakCount; i++) {
+      const si = Math.floor(Math.random() * C.STAR_COUNT) * 3;
+      const x  = starPositions[si], y = starPositions[si+1], z = starPositions[si+2];
+      const len = Math.sqrt(x*x + y*y + z*z);
+      const nx = x / len, ny = y / len, nz = z / len;
+      const d  = 90000;
+      linePts[i*6]   = nx * d;
+      linePts[i*6+1] = ny * d;
+      linePts[i*6+2] = nz * d;
+      linePts[i*6+3] = nx * (d - 14000);
+      linePts[i*6+4] = ny * (d - 14000);
+      linePts[i*6+5] = nz * (d - 14000);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(linePts, 3));
+    const mat = new THREE.LineBasicMaterial({
+      color: 0xaaccff, transparent: true, opacity: 0.0, depthWrite: false,
+    });
+    this.warpLines = new THREE.LineSegments(geo, mat);
+    this.scene.add(this.warpLines);
   }
 
   setWarpFactor(f) {
-    this.starfield.material.uniforms.warpFactor.value = f;
+    this.starfield.material.size = f > 0 ? 2.5 : 1.8;
+    if (this.warpLines) {
+      this.warpLines.material.opacity = f * 0.55;
+    }
   }
 
-  setPlayerDir(dir) {
-    this.starfield.material.uniforms.playerDir.value.copy(dir);
+  setPlayerDir(_dir) {
+    // Direction not used with PointsMaterial approach
   }
 
   update(dt) {
@@ -657,7 +654,6 @@ class CockpitRenderer {
     ctx.fillRect(0, 0, W, 30);
     ctx.fillStyle   = '#7ef4ff';
     ctx.font        = '9px "Courier New"';
-    ctx.letterSpacing = '2px';
     ctx.fillText('MISSION TERMINAL', 12, 19);
 
     const t   = Date.now() * 0.001;
@@ -1384,7 +1380,7 @@ class SunforgeGame {
         this.hud.showMissionComplete(nextMission);
         this.hud.notify('MISSION COMPLETE', `+10% HOME PLANET RESTORED`, 2000);
 
-        // Unlock Dyson spheres after mission 6
+        // Unlock Dyson spheres after completing the 7th mission (current index becomes 7)
         if (this.missionSys.current >= 7) this.dysonUnlocked = true;
       }
     }

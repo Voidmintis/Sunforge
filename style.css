@@ -27,8 +27,8 @@ body {
 }
 
 .hud-panel {
-  background: rgba(0, 20, 35, 0.75);
-  border: 1px solid rgba(126, 244, 255, 0.25);
+  background: rgba(0, 15, 28, 0.80);
+  border: 1px solid rgba(126, 244, 255, 0.20);
   border-radius: 4px;
   padding: 10px 14px;
   backdrop-filter: blur(4px);
@@ -580,12 +580,4 @@ body {
 /* ── Glow ── */
 .glow {
   text-shadow: 0 0 10px rgba(126, 244, 255, 0.8);
-}
-
-/* ── All games panels ─────────────────────────────────── */
-.hud-panel {
-  background: rgba(0, 15, 28, 0.78);
-  border: 1px solid rgba(126, 244, 255, 0.18);
-  border-radius: 3px;
-  padding: 10px 14px;
 }
