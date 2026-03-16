@@ -1,0 +1,591 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  overflow: hidden;
+  font-family: 'Courier New', Courier, monospace;
+  color: #7ef4ff;
+  user-select: none;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── HUD ─────────────────────────────────────────────── */
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-panel {
+  background: rgba(0, 20, 35, 0.75);
+  border: 1px solid rgba(126, 244, 255, 0.25);
+  border-radius: 4px;
+  padding: 10px 14px;
+  backdrop-filter: blur(4px);
+}
+
+.hud-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(126, 244, 255, 0.5);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.hud-value {
+  font-size: 13px;
+  color: #7ef4ff;
+  line-height: 1.6;
+}
+
+/* ── Top-left: Mission ── */
+#mission-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  max-width: 280px;
+}
+
+#mission-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #7ef4ff;
+  margin-bottom: 4px;
+}
+
+#mission-objective {
+  font-size: 12px;
+  color: rgba(200, 245, 255, 0.85);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+#mission-materials {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.mat-required {
+  color: rgba(126, 244, 255, 0.5);
+}
+
+.mat-done {
+  color: #4eff9f;
+  text-decoration: line-through;
+}
+
+#mission-progress-bar {
+  margin-top: 10px;
+  height: 3px;
+  background: rgba(126, 244, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#mission-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7ef4ff, #4eff9f);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ── Top-right: Scanner ── */
+#scanner-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  min-width: 210px;
+  text-align: right;
+}
+
+#scanner-target {
+  font-size: 13px;
+  color: #fff;
+  margin-bottom: 3px;
+}
+
+#scanner-distance {
+  font-size: 11px;
+  color: rgba(126, 244, 255, 0.6);
+  margin-bottom: 6px;
+}
+
+#scanner-resources {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.scan-resource {
+  color: rgba(200, 245, 255, 0.75);
+}
+
+.scan-resource.match {
+  color: #ffe066;
+}
+
+/* ── Bottom-left: Status ── */
+#status-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.status-icon {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(126, 244, 255, 0.5);
+  width: 60px;
+}
+
+.status-bar {
+  width: 120px;
+  height: 4px;
+  background: rgba(126, 244, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.status-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.1s ease;
+}
+
+#speed-fill {
+  background: linear-gradient(90deg, #7ef4ff 0%, #3ad0ff 100%);
+}
+
+#timewarp-fill {
+  background: linear-gradient(90deg, #a67eff 0%, #6e3aff 100%);
+}
+
+.status-val {
+  font-size: 11px;
+  color: rgba(126, 244, 255, 0.7);
+  min-width: 50px;
+}
+
+/* ── Bottom-right: Inventory ── */
+#inventory-panel {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  min-width: 180px;
+  text-align: right;
+}
+
+#inventory-list {
+  font-size: 11px;
+  line-height: 1.9;
+  color: rgba(200, 245, 255, 0.7);
+}
+
+.inv-item {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.inv-name {
+  color: rgba(126, 244, 255, 0.6);
+}
+
+.inv-count {
+  color: #7ef4ff;
+  min-width: 24px;
+  text-align: right;
+}
+
+/* ── Bottom-center: Bearing ── */
+#bearing-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  min-width: 160px;
+}
+
+#bearing-value {
+  font-size: 18px;
+  color: #7ef4ff;
+  letter-spacing: 2px;
+}
+
+#speed-text {
+  font-size: 10px;
+  color: rgba(126, 244, 255, 0.5);
+  letter-spacing: 2px;
+  margin-top: 2px;
+}
+
+/* ── Crosshair ── */
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+#crosshair::before,
+#crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(126, 244, 255, 0.5);
+  border-radius: 1px;
+}
+
+#crosshair::before {
+  width: 2px;
+  height: 20px;
+  left: 9px;
+  top: 0;
+}
+
+#crosshair::after {
+  width: 20px;
+  height: 2px;
+  top: 9px;
+  left: 0;
+}
+
+/* ── Interaction hint ── */
+#interaction-hint {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(126, 244, 255, 0.8);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#interaction-hint.visible {
+  opacity: 1;
+}
+
+/* ── Notification toast ── */
+#notification {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#notification.visible {
+  opacity: 1;
+}
+
+#notification-title {
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+#notification-sub {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(126, 244, 255, 0.7);
+}
+
+/* ── Timewarp overlay ── */
+#timewarp-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: radial-gradient(ellipse at center, transparent 20%, rgba(100, 60, 255, 0.08) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#timewarp-overlay.active {
+  opacity: 1;
+  animation: twarpPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes twarpPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+#timewarp-label {
+  position: fixed;
+  top: 50%;
+  right: 30px;
+  transform: translateY(-50%);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(160, 110, 255, 0.9);
+  writing-mode: vertical-rl;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 11;
+}
+
+#timewarp-label.active {
+  opacity: 1;
+  animation: twarpLabel 1s ease-in-out infinite;
+}
+
+@keyframes twarpLabel {
+  0%, 100% { color: rgba(160, 110, 255, 0.9); }
+  50% { color: rgba(200, 160, 255, 1); }
+}
+
+/* ── Planet label ── */
+#planet-label {
+  position: fixed;
+  pointer-events: none;
+  z-index: 12;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-align: center;
+  transform: translateX(-50%);
+  display: none;
+}
+
+#planet-label-name {
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+#planet-label-dist {
+  color: rgba(126, 244, 255, 0.5);
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+/* ── Mission complete overlay ── */
+#mission-complete {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+#mission-complete.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#mission-complete h2 {
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: #4eff9f;
+  margin-bottom: 16px;
+}
+
+#mission-complete p {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: rgba(126, 244, 255, 0.8);
+  margin-bottom: 30px;
+}
+
+#mission-complete button {
+  background: transparent;
+  border: 1px solid rgba(126, 244, 255, 0.5);
+  color: #7ef4ff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  pointer-events: all;
+}
+
+#mission-complete button:hover {
+  background: rgba(126, 244, 255, 0.1);
+  border-color: #7ef4ff;
+}
+
+/* ── Home planet restoration ── */
+#restoration-panel {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  min-width: 200px;
+}
+
+#restoration-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(126, 244, 255, 0.4);
+  margin-bottom: 5px;
+}
+
+#restoration-bar {
+  height: 3px;
+  background: rgba(126, 244, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+#restoration-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4eff9f, #7ef4ff);
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+#restoration-pct {
+  font-size: 11px;
+  color: rgba(126, 244, 255, 0.6);
+}
+
+/* ── Dyson sphere notification ── */
+#dyson-hint {
+  position: absolute;
+  bottom: 170px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(255, 224, 102, 0.85);
+  text-align: center;
+  pointer-events: none;
+  display: none;
+}
+
+/* ── Loading screen ── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 100;
+  transition: opacity 1s ease;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-content h1 {
+  font-size: 52px;
+  letter-spacing: 18px;
+  color: #7ef4ff;
+  margin-bottom: 8px;
+  text-shadow: 0 0 40px rgba(126, 244, 255, 0.6);
+}
+
+.loading-content .subtitle {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(126, 244, 255, 0.4);
+  margin-bottom: 40px;
+}
+
+.loading-bar {
+  width: 260px;
+  height: 2px;
+  background: rgba(126, 244, 255, 0.1);
+  border-radius: 1px;
+  margin: 0 auto 16px;
+  overflow: hidden;
+}
+
+#loading-progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #7ef4ff, #4eff9f);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+.loading-status {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(126, 244, 255, 0.35);
+}
+
+/* ── Controls panel ── */
+#controls-help {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(126, 244, 255, 0.25);
+  line-height: 1.8;
+  display: none;
+}
+
+/* ── Scan ring animation ── */
+@keyframes scanPulse {
+  0% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5); }
+}
+
+.scan-ring {
+  position: fixed;
+  border-radius: 50%;
+  border: 1px solid rgba(126, 244, 255, 0.6);
+  pointer-events: none;
+  animation: scanPulse 1.2s ease-out forwards;
+}
+
+/* ── Glow ── */
+.glow {
+  text-shadow: 0 0 10px rgba(126, 244, 255, 0.8);
+}
+
+/* ── All games panels ─────────────────────────────────── */
+.hud-panel {
+  background: rgba(0, 15, 28, 0.78);
+  border: 1px solid rgba(126, 244, 255, 0.18);
+  border-radius: 3px;
+  padding: 10px 14px;
+}
