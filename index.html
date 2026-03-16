@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SUNFORGE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Three.js canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- ══════════════════════════════════════════
+       HUD OVERLAY
+  ══════════════════════════════════════════ -->
+  <div id="hud">
+
+    <!-- Top-left: Mission -->
+    <div id="mission-panel" class="hud-panel">
+      <div class="hud-label">ACTIVE MISSION</div>
+      <div id="mission-title">—</div>
+      <div id="mission-objective"></div>
+      <div id="mission-materials"></div>
+      <div id="mission-progress-bar">
+        <div id="mission-progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Top-center: Home planet restoration -->
+    <div id="restoration-panel" class="hud-panel">
+      <div id="restoration-label">HOME PLANET RESTORATION</div>
+      <div id="restoration-bar">
+        <div id="restoration-fill" style="width:0%"></div>
+      </div>
+      <div id="restoration-pct">0%</div>
+    </div>
+
+    <!-- Top-right: Scanner -->
+    <div id="scanner-panel" class="hud-panel">
+      <div class="hud-label">LONG-RANGE SCAN</div>
+      <div id="scanner-target">—</div>
+      <div id="scanner-distance"></div>
+      <div id="scanner-resources"></div>
+    </div>
+
+    <!-- Bottom-left: Status bars -->
+    <div id="status-panel" class="hud-panel">
+      <div class="status-row">
+        <span class="status-icon">SPEED</span>
+        <div class="status-bar"><div class="status-bar-fill" id="speed-fill" style="width:0%"></div></div>
+        <span class="status-val" id="speed-val">0</span>
+      </div>
+      <div class="status-row">
+        <span class="status-icon">WARP</span>
+        <div class="status-bar"><div class="status-bar-fill" id="timewarp-fill" style="width:100%"></div></div>
+        <span class="status-val" id="warp-val">100%</span>
+      </div>
+    </div>
+
+    <!-- Bottom-center: Bearing / speed readout -->
+    <div id="bearing-panel" class="hud-panel">
+      <div id="bearing-value">000°</div>
+      <div id="speed-text">—</div>
+    </div>
+
+    <!-- Bottom-right: Inventory -->
+    <div id="inventory-panel" class="hud-panel">
+      <div class="hud-label">CARGO</div>
+      <div id="inventory-list"></div>
+    </div>
+
+    <!-- Crosshair -->
+    <div id="crosshair"></div>
+
+    <!-- Interaction hint (E to collect) -->
+    <div id="interaction-hint"></div>
+
+    <!-- Notification toast (mission complete etc.) -->
+    <div id="notification">
+      <div id="notification-title"></div>
+      <div id="notification-sub"></div>
+    </div>
+
+    <!-- Dyson sphere hint -->
+    <div id="dyson-hint"></div>
+
+    <!-- Controls hint (first launch) -->
+    <div id="controls-help">
+      WASD · MOVE &nbsp;|&nbsp; RMB · LOOK &nbsp;|&nbsp; T · TIMEWARP &nbsp;|&nbsp; E · COLLECT &nbsp;|&nbsp; B · BUILD DYSON SPHERE
+    </div>
+
+  </div><!-- /hud -->
+
+  <!-- Planet label (follows planet in screen space) -->
+  <div id="planet-label">
+    <div id="planet-label-name"></div>
+    <div id="planet-label-dist"></div>
+  </div>
+
+  <!-- Timewarp vignette -->
+  <div id="timewarp-overlay"></div>
+  <div id="timewarp-label">TIMEWARP ACTIVE</div>
+
+  <!-- Mission complete modal -->
+  <div id="mission-complete">
+    <h2>MISSION COMPLETE</h2>
+    <p id="mc-text">Materials delivered to the home planet.</p>
+    <button id="mc-continue">CONTINUE →</button>
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loading-screen">
+    <div class="loading-content">
+      <h1>SUNFORGE</h1>
+      <div class="subtitle">STELLAR RECONSTRUCTION INITIATIVE</div>
+      <div class="loading-bar">
+        <div id="loading-progress"></div>
+      </div>
+      <div class="loading-status" id="loading-status">INITIALIZING NAVIGATION SYSTEMS…</div>
+    </div>
+  </div>
+
+  <!-- Three.js (local, global build) -->
+  <script src="vendor/three.min.js"></script>
+  <script src="game.js"></script>
+
+</body>
+</html>
